@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Wedding Invitation</title>
+  <style>
+    /* Reset some basic styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #f1f1f1;
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      width: 90%;
+      max-width: 800px;
+      text-align: center;
+    }
+
+    .attendee-table {
+      margin-top: 20px;
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .attendee-table th, .attendee-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .attendee-table th {
+      background-color: #c76e6e;
+      color: white;
+    }
+
+    .attendee-table td {
+      background-color: #f9f9f9;
+    }
+
+    .logout-btn {
+      padding: 10px 20px;
+      background-color: #6e4b3c;
+      border: none;
+      color: white;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Admin Dashboard Section -->
+    <h2>Welcome to the Admin Dashboard</h2>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+    
+    <!-- Data Display Section -->
+    <div id="data-section">
+      <h2>Attendees List</h2>
+      <table class="attendee-table" id="attendee-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Date of Attendance</th>
+            <th>Created At</th>
+          </tr>
+        </thead>
+        <tbody id="attendee-list">
+          <!-- Data from Firebase will be populated here -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCwsYufFnaWi8abdHBnpkX26Fl-_rjjql0",
+      authDomain: "shadi-282f3.firebaseapp.com",
+      projectId: "shadi-282f3",
+      storageBucket: "shadi-282f3.firebasestorage.app",
+      messagingSenderId: "560917273677",
+      appId: "1:560917273677:web:c5aa02266f9cb889f15004",
+      measurementId: "G-W18QW62RG1"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Check if logged in
+    if (!localStorage.getItem('isLoggedIn')) {
+      window.location.href = "admin-login.html"; // Redirect to login if not logged in
+    }
+
+    // Fetch Attendees Data from Firestore
+    async function fetchAttendeesData() {
+      const querySnapshot = await getDocs(collection(db, "attendees"));
+      const attendeeList = document.getElementById('attendee-list');
+      attendeeList.innerHTML = ''; // Clear any existing rows
+
+      querySnapshot.forEach((doc) => {
+        const attendee = doc.data();
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${attendee.name}</td>
+          <td>${attendee.date}</td>
+          <td>${new Date(attendee.createdAt.seconds * 1000).toLocaleString()}</td>
+        `;
+        attendeeList.appendChild(tr);
+      });
+    }
+
+    fetchAttendeesData();
+
+    // Logout Function
+    function logout() {
+      localStorage.removeItem('isLoggedIn');
+      window.location.href = "admin-login.html"; // Redirect to login page
+    }
+  </script>
+</body>
+</html>
